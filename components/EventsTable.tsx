@@ -137,8 +137,8 @@ export default function EventsTable({ events }: { events: Event[] }) {
                   ) : (
                     <span>{ev.artistName}</span>
                   )}
-                  {ev.artistUrlSource === 'search' && (
-                    <span className="source-tag search" title="Could not resolve official site — link goes to Google search">search</span>
+                  {ev.artistUrlSource === 'spotify-search' && (
+                    <span className="source-tag search" title="Could not resolve a direct artist page — link goes to Spotify search">search</span>
                   )}
                 </td>
                 <td className="cell-venue">
