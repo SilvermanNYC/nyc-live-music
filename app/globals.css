@@ -1,12 +1,12 @@
 :root {
-  --paper: #f4ede0;
-  --paper-deep: #e8dfc9;
-  --ink: #1a1614;
-  --ink-soft: #4a4138;
-  --oxblood: #6b1f1a;
-  --oxblood-bright: #a3251c;
-  --rule: #2a221c;
-  --highlight: #e9c46a;
+  --paper: #ffffff;
+  --paper-deep: #f5f3ef;
+  --ink: #121212;
+  --ink-soft: #5a5a5a;
+  --oxblood: #a32d2d;
+  --oxblood-bright: #c63838;
+  --rule: #121212;
+  --highlight: #d4a73e;
 }
 
 * {
@@ -22,18 +22,6 @@ html, body {
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-}
-
-/* Subtle paper grain texture using SVG noise */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 100;
-  opacity: 0.06;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/></svg>");
 }
 
 a {
@@ -294,97 +282,6 @@ table.listings tbody tr:hover {
   color: var(--paper);
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
-}
-
-/* "Also Worth Checking" section — venues without auto-fetched data */
-.also-checking {
-  padding: 48px 32px 56px;
-  border-top: 3px double var(--rule);
-  background: var(--paper-deep);
-}
-
-.also-checking-header {
-  margin-bottom: 32px;
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 18px;
-}
-
-.also-checking-title {
-  font-family: 'Bodoni Moda', serif;
-  font-weight: 900;
-  font-style: italic;
-  font-size: clamp(28px, 4vw, 44px);
-  line-height: 1;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-  margin-bottom: 8px;
-}
-
-.also-checking-subtitle {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--ink-soft);
-  max-width: 640px;
-}
-
-.also-checking-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 32px 40px;
-}
-
-.also-checking-region-name {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--oxblood);
-  font-weight: 500;
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 6px;
-  margin-bottom: 12px;
-}
-
-.also-checking-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.also-checking-list li {
-  padding: 8px 0;
-  border-bottom: 1px dotted rgba(42, 34, 28, 0.18);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.also-checking-list li:last-child {
-  border-bottom: none;
-}
-
-.also-checking-list a {
-  font-family: 'Bodoni Moda', serif;
-  font-size: 17px;
-  font-weight: 400;
-  color: var(--ink);
-  text-decoration: none;
-  border-bottom: 1.5px solid transparent;
-  align-self: flex-start;
-  transition: color .15s, border-color .15s;
-}
-.also-checking-list a:hover {
-  color: var(--oxblood);
-  border-bottom-color: var(--oxblood);
-}
-
-.also-checking-city {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--ink-soft);
 }
 
 .footer {
