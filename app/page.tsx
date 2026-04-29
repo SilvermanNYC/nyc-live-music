@@ -54,9 +54,6 @@ export default async function HomePage() {
             <div>Six Months Out</div>
             <div>~2 Hours From Manhattan</div>
           </div>
-          <a href="#indie-venues" className="indie-button">
-            Indie Venues →
-          </a>
         </div>
       </header>
 

@@ -106,6 +106,33 @@ a:hover {
   text-decoration: none;
 }
 
+/* Inline version that lives in the controls bar */
+.indie-button-inline {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--paper);
+  background: var(--oxblood);
+  padding: 9px 14px;
+  text-decoration: none;
+  border: 1px solid var(--oxblood);
+  transition: all 0.15s;
+  height: 36px;
+  white-space: nowrap;
+}
+.indie-button-inline:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+}
+
 .dateline {
   border-bottom: 1px solid var(--rule);
   padding: 6px 32px;

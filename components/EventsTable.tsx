@@ -104,6 +104,9 @@ export default function EventsTable({ events }: { events: Event[] }) {
             {genres.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
         </div>
+        <a href="#indie-venues" className="indie-button-inline">
+          Indie Venues →
+        </a>
         <div className="results-count">
           {filtered.length} {filtered.length === 1 ? 'show' : 'shows'}
         </div>
@@ -133,6 +136,9 @@ export default function EventsTable({ events }: { events: Event[] }) {
                     <a href={ev.artistUrl} target="_blank" rel="noopener noreferrer">{ev.artistName}</a>
                   ) : (
                     <span>{ev.artistName}</span>
+                  )}
+                  {ev.artistUrlSource === 'search' && (
+                    <span className="source-tag search" title="Could not resolve official site — link goes to Google search">search</span>
                   )}
                 </td>
                 <td className="cell-venue">
