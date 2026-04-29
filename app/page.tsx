@@ -1,12 +1,12 @@
 import { getAllEvents } from '../lib/sources/aggregate';
-import { VENUES } from '../data/venues';
 import EventsTable from '../components/EventsTable';
+import { VENUES } from '../data/venues';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const REGION_LABELS: Record<string, string> = {
-  NYC: 'NYC',
+  NYC: 'New York City',
   NJ: 'New Jersey',
   LongIsland: 'Long Island',
   HudsonValley: 'Hudson Valley',
@@ -30,28 +30,33 @@ export default async function HomePage() {
 
   const fetchedDate = fetchedAt ? new Date(fetchedAt) : null;
 
-  // Find venues with zero events — these are the "also worth checking" entries
-  const venueNamesWithEvents = new Set(events.map((e) => e.venueName));
-  const venuesWithoutEvents = VENUES.filter((v) => !venueNamesWithEvents.has(v.name));
+  // Indie venues = ones we don't pull from Ticketmaster (need direct site visit)
+  const indieVenues = VENUES.filter(v => v.ticketmasterId === null);
 
-  // Group by region for cleaner display
-  const venuesByRegion: Record<string, typeof VENUES> = {};
-  for (const v of venuesWithoutEvents) {
-    if (!venuesByRegion[v.region]) venuesByRegion[v.region] = [];
-    venuesByRegion[v.region].push(v);
+  // Group by region for the indie list
+  const indieByRegion: Record<string, typeof indieVenues> = {};
+  for (const v of indieVenues) {
+    if (!indieByRegion[v.region]) indieByRegion[v.region] = [];
+    indieByRegion[v.region].push(v);
   }
-  const regionOrder: Array<keyof typeof REGION_LABELS> = ['NYC', 'NJ', 'LongIsland', 'HudsonValley', 'CT', 'MA', 'PA'];
 
   return (
     <>
       <header className="masthead">
-        <h1 className="masthead-title">
-          Live <em>/</em> NYC
-        </h1>
-        <div className="masthead-meta">
-          <div>Vol. I — No. 1</div>
-          <div>Six Months Out</div>
-          <div>~2 Hours From Manhattan</div>
+        <div className="masthead-left">
+          <h1 className="masthead-title">
+            Live <em>/</em> NYC
+          </h1>
+        </div>
+        <div className="masthead-right">
+          <div className="masthead-meta">
+            <div>Vol. I — No. 1</div>
+            <div>Six Months Out</div>
+            <div>~2 Hours From Manhattan</div>
+          </div>
+          <a href="#indie-venues" className="indie-button">
+            Indie Venues →
+          </a>
         </div>
       </header>
 
@@ -66,40 +71,38 @@ export default async function HomePage() {
 
       <EventsTable events={events} />
 
-      {venuesWithoutEvents.length > 0 && (
-        <section className="also-checking">
-          <div className="also-checking-header">
-            <h2 className="also-checking-title">Indie Venues</h2>
-            <p className="also-checking-subtitle">
-              Smaller rooms and clubs we can't auto-fetch yet — click through to see what's on their calendar.
-            </p>
+      <section id="indie-venues" className="indie-section">
+        <div className="indie-header">
+          <h2 className="indie-title">Indie Venues</h2>
+          <p className="indie-blurb">
+            These venues book direct — schedules don&apos;t flow through ticket aggregators.
+            Visit each site for the latest listings.
+          </p>
+        </div>
+
+        {Object.entries(indieByRegion).map(([region, venues]) => (
+          <div key={region} className="indie-region">
+            <h3 className="indie-region-title">{REGION_LABELS[region] || region}</h3>
+            <div className="indie-grid">
+              {venues.map(v => (
+                <a
+                  key={v.name}
+                  href={v.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="indie-card"
+                >
+                  <div className="indie-name">{v.name}</div>
+                  <div className="indie-city">{v.city}</div>
+                </a>
+              ))}
+            </div>
           </div>
-          <div className="also-checking-grid">
-            {regionOrder.map((region) => {
-              const list = venuesByRegion[region];
-              if (!list || list.length === 0) return null;
-              return (
-                <div key={region} className="also-checking-region">
-                  <h3 className="also-checking-region-name">{REGION_LABELS[region] ?? region}</h3>
-                  <ul className="also-checking-list">
-                    {list.map((v) => (
-                      <li key={v.name}>
-                        <a href={v.website} target="_blank" rel="noopener noreferrer">
-                          {v.name}
-                        </a>
-                        <span className="also-checking-city">{v.city}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
+        ))}
+      </section>
 
       <footer className="footer">
-        <span>Sources: Ticketmaster Discovery API · Custom venue scrapers · Spotify</span>
+        <span>Sources: Ticketmaster Discovery API · Spotify · Direct venue sites</span>
         <span>Built with Next.js · Deployed on Vercel</span>
       </footer>
     </>
