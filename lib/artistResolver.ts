@@ -14,6 +14,9 @@ import path from 'path';
 
 const CACHE_PATH = path.join(process.cwd(), 'data', 'artist-cache.json');
 
+// Detect serverless environment — disk writes are not allowed there.
+const IS_SERVERLESS = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
 type CacheEntry = {
   url: string | null;
   source: 'spotify' | 'spotify-search' | 'unknown';
@@ -27,6 +30,11 @@ let spotifyToken: { token: string; expiresAt: number } | null = null;
 
 async function loadCache(): Promise<Cache> {
   if (cache) return cache;
+  // On serverless, no filesystem cache exists — start fresh in memory
+  if (IS_SERVERLESS) {
+    cache = {};
+    return cache;
+  }
   try {
     const raw = await fs.readFile(CACHE_PATH, 'utf-8');
     cache = JSON.parse(raw);
@@ -38,8 +46,14 @@ async function loadCache(): Promise<Cache> {
 
 async function saveCache() {
   if (!cache) return;
-  await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
-  await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
+  // On serverless, skip disk writes — cache lives in memory only
+  if (IS_SERVERLESS) return;
+  try {
+    await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
+    await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
+  } catch (e) {
+    console.warn('[artistResolver] Could not persist cache to disk:', e);
+  }
 }
 
 async function getSpotifyToken(): Promise<string | null> {

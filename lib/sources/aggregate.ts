@@ -17,24 +17,51 @@ const CACHE_PATH = path.join(process.cwd(), 'data', 'event-cache.json');
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;  // 6 hours
 const MONTHS_AHEAD = 6;
 
+// Detect serverless environment (Vercel sets this). On serverless, the
+// filesystem is read-only — we use in-memory caching instead.
+const IS_SERVERLESS = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
 type EventCache = {
   fetchedAt: string;
   events: Event[];
 };
 
+// In-memory cache used on serverless platforms (and as a fast layer locally too)
+let memoryCache: EventCache | null = null;
+
 async function readCache(): Promise<EventCache | null> {
+  // Try memory cache first (always available)
+  if (memoryCache) return memoryCache;
+
+  // On serverless, no filesystem — return null
+  if (IS_SERVERLESS) return null;
+
+  // Local: read from disk
   try {
     const raw = await fs.readFile(CACHE_PATH, 'utf-8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw) as EventCache;
+    memoryCache = parsed;
+    return parsed;
   } catch {
     return null;
   }
 }
 
 async function writeCache(events: Event[]) {
-  await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
   const data: EventCache = { fetchedAt: new Date().toISOString(), events };
-  await fs.writeFile(CACHE_PATH, JSON.stringify(data, null, 2));
+  // Always write to memory
+  memoryCache = data;
+
+  // On serverless, skip disk writes (filesystem is read-only)
+  if (IS_SERVERLESS) return;
+
+  // Local: persist to disk
+  try {
+    await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
+    await fs.writeFile(CACHE_PATH, JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.warn('[aggregate] Could not persist cache to disk:', e);
+  }
 }
 
 export async function getAllEvents(forceRefresh = false): Promise<{ events: Event[]; fetchedAt: string; fromCache: boolean }> {
