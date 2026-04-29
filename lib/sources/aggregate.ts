@@ -56,8 +56,8 @@ export async function refreshAllEvents(): Promise<Event[]> {
   console.log(`[aggregate] Refreshing events for ${VENUES.length} venues...`);
   const all: Event[] = [];
 
-  // Run venues one at a time with a small delay so we stay well under
-  // Ticketmaster's 5 req/sec rate limit. Slower, but reliable.
+  // Run venues sequentially with a small delay to stay well under Ticketmaster's
+  // 5 req/sec limit and to be polite to scraped sites.
   for (const venue of VENUES) {
     try {
       let venueEvents: Event[] = [];
@@ -70,6 +70,7 @@ export async function refreshAllEvents(): Promise<Event[]> {
     } catch (e) {
       console.warn(`[aggregate] Failed for ${venue.name}:`, e);
     }
+    // 300ms between venues = ~3 req/sec, well under TM's 5/sec
     await new Promise((r) => setTimeout(r, 300));
   }
 
@@ -83,8 +84,8 @@ export async function refreshAllEvents(): Promise<Event[]> {
       e.artistUrl = r.url;
       e.artistUrlSource = r.source;
     } else {
-      e.artistUrl = `https://www.google.com/search?q=${encodeURIComponent(`"${e.artistName}" official site`)}`;
-      e.artistUrlSource = 'search';
+      e.artistUrl = `https://open.spotify.com/search/${encodeURIComponent(e.artistName)}`;
+      e.artistUrlSource = 'spotify-search';
     }
   }
 
