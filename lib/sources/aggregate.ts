@@ -1,12 +1,14 @@
 // Aggregates events across all sources (Ticketmaster + scrapers),
 // resolves artist URLs, and caches the combined result.
 //
-// The event cache lives at data/event-cache.json and is refreshed
-// either on a schedule (Vercel cron) or when a request comes in
-// after the TTL expires.
+// Caching strategy:
+// - Production (Vercel): Vercel KV (Upstash Redis) - shared across all instances
+// - Local dev: filesystem cache at data/event-cache.json
+// - In-memory cache on top of either, for warm-instance speedups
 
 import fs from 'fs/promises';
 import path from 'path';
+import { kv } from '@vercel/kv';
 import { VENUES } from '../../data/venues';
 import { fetchTicketmasterEventsForVenue } from './ticketmaster';
 import { runScraperForVenue } from '../scrapers';
@@ -14,53 +16,82 @@ import { resolveAllArtists } from '../artistResolver';
 import type { Event } from '../types';
 
 const CACHE_PATH = path.join(process.cwd(), 'data', 'event-cache.json');
+const CACHE_KV_KEY = 'events:cache';
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;  // 6 hours
 const MONTHS_AHEAD = 6;
 
-// Detect serverless environment (Vercel sets this). On serverless, the
-// filesystem is read-only — we use in-memory caching instead.
+// Detect environment
 const IS_SERVERLESS = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+const HAS_KV = !!process.env.KV_REST_API_URL && !!process.env.KV_REST_API_TOKEN;
 
 type EventCache = {
   fetchedAt: string;
   events: Event[];
 };
 
-// In-memory cache used on serverless platforms (and as a fast layer locally too)
+// In-memory cache (fast layer - works on both serverless and local)
 let memoryCache: EventCache | null = null;
 
 async function readCache(): Promise<EventCache | null> {
-  // Try memory cache first (always available)
-  if (memoryCache) return memoryCache;
+  // Memory cache is fastest - try first
+  if (memoryCache) {
+    const age = Date.now() - new Date(memoryCache.fetchedAt).getTime();
+    if (age < CACHE_TTL_MS) return memoryCache;
+  }
 
-  // On serverless, no filesystem — return null
-  if (IS_SERVERLESS) return null;
-
-  // Local: read from disk
-  try {
-    const raw = await fs.readFile(CACHE_PATH, 'utf-8');
-    const parsed = JSON.parse(raw) as EventCache;
-    memoryCache = parsed;
-    return parsed;
-  } catch {
+  // Try Vercel KV (production)
+  if (HAS_KV) {
+    try {
+      const cached = await kv.get<EventCache>(CACHE_KV_KEY);
+      if (cached) {
+        memoryCache = cached;
+        return cached;
+      }
+    } catch (e) {
+      console.warn('[aggregate] KV read failed:', e);
+    }
     return null;
   }
+
+  // Local: read from disk
+  if (!IS_SERVERLESS) {
+    try {
+      const raw = await fs.readFile(CACHE_PATH, 'utf-8');
+      const parsed = JSON.parse(raw) as EventCache;
+      memoryCache = parsed;
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
 }
 
 async function writeCache(events: Event[]) {
   const data: EventCache = { fetchedAt: new Date().toISOString(), events };
-  // Always write to memory
+
+  // Always update memory
   memoryCache = data;
 
-  // On serverless, skip disk writes (filesystem is read-only)
-  if (IS_SERVERLESS) return;
+  // Write to KV if available (production)
+  if (HAS_KV) {
+    try {
+      await kv.set(CACHE_KV_KEY, data, { ex: 7 * 24 * 60 * 60 });  // 7-day TTL safety net
+    } catch (e) {
+      console.warn('[aggregate] KV write failed:', e);
+    }
+    return;
+  }
 
-  // Local: persist to disk
-  try {
-    await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
-    await fs.writeFile(CACHE_PATH, JSON.stringify(data, null, 2));
-  } catch (e) {
-    console.warn('[aggregate] Could not persist cache to disk:', e);
+  // Otherwise (local dev), write to disk
+  if (!IS_SERVERLESS) {
+    try {
+      await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
+      await fs.writeFile(CACHE_PATH, JSON.stringify(data, null, 2));
+    } catch (e) {
+      console.warn('[aggregate] Could not persist cache to disk:', e);
+    }
   }
 }
 

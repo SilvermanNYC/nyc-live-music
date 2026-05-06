@@ -11,11 +11,14 @@
 
 import fs from 'fs/promises';
 import path from 'path';
+import { kv } from '@vercel/kv';
 
 const CACHE_PATH = path.join(process.cwd(), 'data', 'artist-cache.json');
+const CACHE_KV_KEY = 'artists:cache';
 
-// Detect serverless environment — disk writes are not allowed there.
+// Environment detection
 const IS_SERVERLESS = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+const HAS_KV = !!process.env.KV_REST_API_URL && !!process.env.KV_REST_API_TOKEN;
 
 type CacheEntry = {
   url: string | null;
@@ -30,11 +33,26 @@ let spotifyToken: { token: string; expiresAt: number } | null = null;
 
 async function loadCache(): Promise<Cache> {
   if (cache) return cache;
-  // On serverless, no filesystem cache exists — start fresh in memory
+
+  // Production: load from KV
+  if (HAS_KV) {
+    try {
+      const fromKv = await kv.get<Cache>(CACHE_KV_KEY);
+      cache = fromKv || {};
+    } catch (e) {
+      console.warn('[artistResolver] KV read failed:', e);
+      cache = {};
+    }
+    return cache;
+  }
+
+  // Serverless without KV: empty in-memory cache
   if (IS_SERVERLESS) {
     cache = {};
     return cache;
   }
+
+  // Local dev: read from disk
   try {
     const raw = await fs.readFile(CACHE_PATH, 'utf-8');
     cache = JSON.parse(raw);
@@ -46,13 +64,25 @@ async function loadCache(): Promise<Cache> {
 
 async function saveCache() {
   if (!cache) return;
-  // On serverless, skip disk writes — cache lives in memory only
-  if (IS_SERVERLESS) return;
-  try {
-    await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
-    await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
-  } catch (e) {
-    console.warn('[artistResolver] Could not persist cache to disk:', e);
+
+  // Production: write to KV
+  if (HAS_KV) {
+    try {
+      await kv.set(CACHE_KV_KEY, cache, { ex: 30 * 24 * 60 * 60 });  // 30-day TTL
+    } catch (e) {
+      console.warn('[artistResolver] KV write failed:', e);
+    }
+    return;
+  }
+
+  // Local dev: persist to disk
+  if (!IS_SERVERLESS) {
+    try {
+      await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
+      await fs.writeFile(CACHE_PATH, JSON.stringify(cache, null, 2));
+    } catch (e) {
+      console.warn('[artistResolver] Could not persist cache to disk:', e);
+    }
   }
 }
 
