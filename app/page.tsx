@@ -30,10 +30,7 @@ export default async function HomePage() {
 
   const fetchedDate = fetchedAt ? new Date(fetchedAt) : null;
 
-  // Indie venues = ones we don't pull from Ticketmaster (need direct site visit)
   const indieVenues = VENUES.filter(v => v.ticketmasterId === null);
-
-  // Group by region for the indie list
   const indieByRegion: Record<string, typeof indieVenues> = {};
   for (const v of indieVenues) {
     if (!indieByRegion[v.region]) indieByRegion[v.region] = [];
@@ -45,15 +42,15 @@ export default async function HomePage() {
       <header className="masthead">
         <div className="masthead-left">
           <h1 className="masthead-title">
-            Live <em>/</em> NYC
+            AFTERHOURS<span className="accent-dot">.</span>
           </h1>
-        </div>
-        <div className="masthead-right">
-          <div className="masthead-meta">
-            <div>Vol. I — No. 1</div>
-            <div>Six Months Out</div>
-            <div>~2 Hours From Manhattan</div>
+          <div className="masthead-tagline">
+            Live shows across the NYC region
           </div>
+        </div>
+        <div className="show-count">
+          <div className="show-count-num">{events.length}</div>
+          <div className="show-count-label">Shows</div>
         </div>
       </header>
 
@@ -70,7 +67,9 @@ export default async function HomePage() {
 
       <section id="indie-venues" className="indie-section">
         <div className="indie-header">
-          <h2 className="indie-title">Indie Venues</h2>
+          <h2 className="indie-title">
+            Indie Venues<span className="accent-dot">.</span>
+          </h2>
           <p className="indie-blurb">
             These venues book direct — schedules don&apos;t flow through ticket aggregators.
             Visit each site for the latest listings.

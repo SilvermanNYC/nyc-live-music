@@ -1,11 +1,11 @@
 {
-  "name": "Live NYC",
-  "short_name": "Live NYC",
-  "description": "Live music within ~2 hours of NYC, six months out.",
+  "name": "AFTERHOURS",
+  "short_name": "AFTERHOURS",
+  "description": "Live shows across the NYC region.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#121212",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
   "orientation": "portrait",
   "icons": [
     {
