@@ -14,9 +14,9 @@ const REGION_LABELS: Record<string, string> = {
 };
 
 function formatDateParts(iso: string): { day: string; num: string } {
-  // iso is YYYY-MM-DD; build a Date in local time to avoid TZ surprises
-  const [y, m, d] = iso.split('-').map(Number);
-  const date = new Date(y, (m ?? 1) - 1, d ?? 1);
+  // Handle both YYYY-MM-DD and full ISO timestamps; new Date() handles both
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) return { day: '', num: iso };
   const day = date.toLocaleDateString('en-US', { weekday: 'short' });
   const month = date.toLocaleDateString('en-US', { month: 'short' });
   return { day, num: `${month} ${date.getDate()}` };
