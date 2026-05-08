@@ -130,7 +130,7 @@ export default function EventsTable({ events }: { events: Event[] }) {
           {filtered.map((ev) => {
             const { day, num } = formatDateParts(ev.date);
             return (
-              <tr key={`${ev.date}-${ev.venueName}-${ev.artistName}`}>
+              <tr key={ev.id}>
                 <td className="cell-date">
                   <div className="cell-date-day">{day}</div>
                   <div className="cell-date-num">{num}</div>

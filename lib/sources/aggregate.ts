@@ -17,7 +17,13 @@ import type { Event } from '../types';
 
 const CACHE_PATH = path.join(process.cwd(), 'data', 'event-cache.json');
 const CACHE_KV_KEY = 'events:cache';
-const CACHE_TTL_MS = 6 * 60 * 60 * 1000;  // 6 hours
+
+// Cache strategy:
+// - Fresh window (24h): serve cache, no refresh
+// - Stale window (24h - 7d): serve cache instantly, refresh in background
+// - Beyond 7d: cache miss, must rebuild (visitor waits)
+const CACHE_FRESH_MS = 24 * 60 * 60 * 1000;       // 24 hours
+const CACHE_STALE_MS = 7 * 24 * 60 * 60 * 1000;   // 7 days
 const MONTHS_AHEAD = 6;
 
 // Detect environment
@@ -33,10 +39,10 @@ type EventCache = {
 let memoryCache: EventCache | null = null;
 
 async function readCache(): Promise<EventCache | null> {
-  // Memory cache is fastest - try first
+  // Memory cache is fastest - try first. Use stale window so we always have something to serve.
   if (memoryCache) {
     const age = Date.now() - new Date(memoryCache.fetchedAt).getTime();
-    if (age < CACHE_TTL_MS) return memoryCache;
+    if (age < CACHE_STALE_MS) return memoryCache;
   }
 
   // Try Vercel KV (production)
@@ -95,17 +101,38 @@ async function writeCache(events: Event[]) {
   }
 }
 
+// Track in-flight background refresh to avoid spawning multiple
+let backgroundRefreshInFlight = false;
+
+function startBackgroundRefresh() {
+  if (backgroundRefreshInFlight) return;
+  backgroundRefreshInFlight = true;
+  // Fire-and-forget — don't await
+  refreshAllEvents()
+    .catch((e) => console.warn('[aggregate] Background refresh failed:', e))
+    .finally(() => { backgroundRefreshInFlight = false; });
+}
+
 export async function getAllEvents(forceRefresh = false): Promise<{ events: Event[]; fetchedAt: string; fromCache: boolean }> {
   if (!forceRefresh) {
     const cached = await readCache();
     if (cached) {
       const age = Date.now() - new Date(cached.fetchedAt).getTime();
-      if (age < CACHE_TTL_MS) {
+
+      // Fresh — serve from cache, no work needed
+      if (age < CACHE_FRESH_MS) {
+        return { events: cached.events, fetchedAt: cached.fetchedAt, fromCache: true };
+      }
+
+      // Stale but usable — serve cached data instantly, refresh in background
+      if (age < CACHE_STALE_MS) {
+        startBackgroundRefresh();
         return { events: cached.events, fetchedAt: cached.fetchedAt, fromCache: true };
       }
     }
   }
 
+  // No cache or beyond stale window — visitor has to wait for fresh data
   const events = await refreshAllEvents();
   return { events, fetchedAt: new Date().toISOString(), fromCache: false };
 }

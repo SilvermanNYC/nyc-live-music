@@ -42,7 +42,9 @@ export default async function HomePage() {
       <header className="masthead">
         <div className="masthead-left">
           <h1 className="masthead-title">
-            AFTERHOURS<span className="accent-dot">.</span>
+            <a href="/" className="masthead-link">
+              AFTERHOURS<span className="accent-dot">.</span>
+            </a>
           </h1>
           <div className="masthead-tagline">
             Live shows across the NYC region
