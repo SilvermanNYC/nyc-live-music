@@ -53,10 +53,16 @@ export default function EventsTable({ events }: { events: Event[] }) {
     if (search.trim()) {
       const q = search.toLowerCase();
       out = out.filter(
-        (e) =>
-          e.artistName.toLowerCase().includes(q) ||
-          e.venueName.toLowerCase().includes(q) ||
-          (e.genre ?? '').toLowerCase().includes(q)
+        (e) => {
+          const regionLabel = (REGION_LABELS[e.venueRegion] ?? e.venueRegion).toLowerCase();
+          return (
+            e.artistName.toLowerCase().includes(q) ||
+            e.venueName.toLowerCase().includes(q) ||
+            (e.genre ?? '').toLowerCase().includes(q) ||
+            regionLabel.includes(q) ||
+            e.venueRegion.toLowerCase().includes(q)
+          );
+        }
       );
     }
     out = [...out].sort((a, b) => a.date.localeCompare(b.date));
@@ -140,9 +146,6 @@ export default function EventsTable({ events }: { events: Event[] }) {
                     <a href={ev.artistUrl} target="_blank" rel="noopener noreferrer">{ev.artistName}</a>
                   ) : (
                     <span>{ev.artistName}</span>
-                  )}
-                  {ev.artistUrlSource === 'spotify-search' && (
-                    <span className="source-tag" title="Could not resolve a direct artist page — link goes to Spotify search">search</span>
                   )}
                   <div className="cell-venue">
                     {ev.venueWebsite ? (
