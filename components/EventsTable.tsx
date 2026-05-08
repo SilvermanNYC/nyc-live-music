@@ -14,12 +14,13 @@ const REGION_LABELS: Record<string, string> = {
 };
 
 function formatDateParts(iso: string): { day: string; num: string } {
-  // Handle both YYYY-MM-DD and full ISO timestamps; new Date() handles both
+  // Force UTC so server-rendered HTML matches client (avoid hydration mismatch)
   const date = new Date(iso);
   if (isNaN(date.getTime())) return { day: '', num: iso };
-  const day = date.toLocaleDateString('en-US', { weekday: 'short' });
-  const month = date.toLocaleDateString('en-US', { month: 'short' });
-  return { day, num: `${month} ${date.getDate()}` };
+  const day = date.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
+  const month = date.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
+  const dayNum = date.toLocaleDateString('en-US', { day: 'numeric', timeZone: 'UTC' });
+  return { day, num: `${month} ${dayNum}` };
 }
 
 export default function EventsTable({ events }: { events: Event[] }) {
