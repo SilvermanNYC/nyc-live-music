@@ -2,8 +2,8 @@ export type Event = {
   id: string;
   date: string;            // ISO date string
   artistName: string;
-  artistUrl: string | null;        // Resolved official website (or fallback)
-  artistUrlSource: 'official' | 'spotify' | 'spotify-search' | 'ticketmaster' | 'search' | 'unknown';
+  artistUrl: string | null;        // Resolved artist page (Spotify) or fallback
+  artistUrlSource: 'spotify' | 'spotify-search' | 'unknown';
   venueName: string;
   venueWebsite: string;
   venueRegion: string;

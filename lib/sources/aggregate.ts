@@ -1,27 +1,26 @@
-// Aggregates events across all sources (Ticketmaster + scrapers),
-// resolves artist URLs, and caches the combined result.
+// Aggregates events from Ticketmaster across the venue list, resolves
+// artist URLs via Spotify, and caches the combined result.
 //
 // Caching strategy:
 // - Production (Vercel): Vercel KV (Upstash Redis) - shared across all instances
 // - Local dev: filesystem cache at data/event-cache.json
 // - In-memory cache on top of either, for warm-instance speedups
+//
+// Cache lifecycle:
+// - Fresh window (24h): serve cache, no refresh
+// - Stale window (24h - 7d): serve cache instantly, refresh in background
+// - Beyond 7d: cache miss, must rebuild (visitor waits)
 
 import fs from 'fs/promises';
 import path from 'path';
 import { kv } from '@vercel/kv';
 import { VENUES } from '../../data/venues';
 import { fetchTicketmasterEventsForVenue } from './ticketmaster';
-import { runScraperForVenue } from '../scrapers';
 import { resolveAllArtists } from '../artistResolver';
 import type { Event } from '../types';
 
 const CACHE_PATH = path.join(process.cwd(), 'data', 'event-cache.json');
 const CACHE_KV_KEY = 'events:cache';
-
-// Cache strategy:
-// - Fresh window (24h): serve cache, no refresh
-// - Stale window (24h - 7d): serve cache instantly, refresh in background
-// - Beyond 7d: cache miss, must rebuild (visitor waits)
 const CACHE_FRESH_MS = 24 * 60 * 60 * 1000;       // 24 hours
 const CACHE_STALE_MS = 7 * 24 * 60 * 60 * 1000;   // 7 days
 const MONTHS_AHEAD = 6;
@@ -138,19 +137,17 @@ export async function getAllEvents(forceRefresh = false): Promise<{ events: Even
 }
 
 export async function refreshAllEvents(): Promise<Event[]> {
-  console.log(`[aggregate] Refreshing events for ${VENUES.length} venues...`);
+  // Only fetch from venues that have a Ticketmaster ID. Indie venues
+  // (ticketmasterId: null) appear in the Indie Venues section as direct links.
+  const tmVenues = VENUES.filter((v) => v.ticketmasterId);
+  console.log(`[aggregate] Refreshing events for ${tmVenues.length} Ticketmaster venues...`);
   const all: Event[] = [];
 
   // Run venues sequentially with a small delay to stay well under Ticketmaster's
-  // 5 req/sec limit and to be polite to scraped sites.
-  for (const venue of VENUES) {
+  // 5 req/sec limit.
+  for (const venue of tmVenues) {
     try {
-      let venueEvents: Event[] = [];
-      if (venue.ticketmasterId) {
-        venueEvents = await fetchTicketmasterEventsForVenue(venue, MONTHS_AHEAD);
-      } else if (venue.scraper) {
-        venueEvents = await runScraperForVenue(venue, MONTHS_AHEAD);
-      }
+      const venueEvents = await fetchTicketmasterEventsForVenue(venue, MONTHS_AHEAD);
       all.push(...venueEvents);
     } catch (e) {
       console.warn(`[aggregate] Failed for ${venue.name}:`, e);
