@@ -64,26 +64,26 @@ export const VENUES: Venue[] = [
   { name: 'Bar Lunàtico', website: 'https://www.barlunatico.com', ticketmasterId: null, scraper: null, city: 'Brooklyn', region: 'NY' },
 
   // ===== NY: Long Island =====
-  { name: 'UBS Arena', website: 'https://www.ubsarena.com', ticketmasterId: 'KovZ917AVuV', scraper: null, city: 'Belmont Park', region: 'NY' },
+  { name: 'UBS Arena', website: 'https://www.ubsarena.com', ticketmasterId: 'KovZ917APye', scraper: null, city: 'Belmont Park', region: 'NY' },
 
   // ===== NY: Hudson Valley =====
-  { name: 'Bethel Woods', website: 'https://www.bethelwoodscenter.org', ticketmasterId: 'KovZpZAFlEEA', scraper: null, city: 'Bethel', region: 'NY' },
-  { name: 'The Capitol Theatre', website: 'https://thecapitoltheatre.com', ticketmasterId: 'KovZpZA7knJA', scraper: null, city: 'Port Chester', region: 'NY' },
+  { name: 'Bethel Woods', website: 'https://www.bethelwoodscenter.org', ticketmasterId: 'KovZpZAEAEJA', scraper: null, city: 'Bethel', region: 'NY' },
+  { name: 'The Capitol Theatre', website: 'https://thecapitoltheatre.com', ticketmasterId: 'KovZ917Ax6H', scraper: null, city: 'Port Chester', region: 'NY' },
   { name: 'Levon Helm Studios', website: 'https://levonhelm.com', ticketmasterId: null, scraper: null, city: 'Woodstock', region: 'NY' },
   { name: 'Bearsville Theater', website: 'https://www.bearsvilletheater.com', ticketmasterId: null, scraper: null, city: 'Bearsville', region: 'NY' },
   { name: 'Daryl\'s House', website: 'https://www.darylshouseclub.com', ticketmasterId: null, scraper: null, city: 'Pawling', region: 'NY' },
 
   // ===== NJ =====
   { name: 'Prudential Center', website: 'https://www.prucenter.com', ticketmasterId: 'KovZpZA7AAEA', scraper: null, city: 'Newark', region: 'NJ' },
-  { name: 'NJPAC', website: 'https://www.njpac.org', ticketmasterId: 'KovZpZAJaknA', scraper: null, city: 'Newark', region: 'NJ' },
-  { name: 'MetLife Stadium', website: 'https://www.metlifestadium.com', ticketmasterId: 'KovZpZA1nlAA', scraper: null, city: 'East Rutherford', region: 'NJ' },
-  { name: 'The Stone Pony', website: 'https://www.stoneponyonline.com', ticketmasterId: 'KovZpZAFEnEA', scraper: null, city: 'Asbury Park', region: 'NJ' },
-  { name: 'Count Basie Center', website: 'https://thebasie.org', ticketmasterId: 'KovZpZAJ716A', scraper: null, city: 'Red Bank', region: 'NJ' },
+  { name: 'NJPAC', website: 'https://www.njpac.org', ticketmasterId: 'KovZpa6Vxe', scraper: null, city: 'Newark', region: 'NJ' },
+  { name: 'MetLife Stadium', website: 'https://www.metlifestadium.com', ticketmasterId: 'KovZpakS7e', scraper: null, city: 'East Rutherford', region: 'NJ' },
+  { name: 'The Stone Pony', website: 'https://www.stoneponyonline.com', ticketmasterId: 'KovZpZAdt7AA', scraper: null, city: 'Asbury Park', region: 'NJ' },
+  { name: 'Count Basie Center', website: 'https://thebasie.org', ticketmasterId: 'KovZ917A8C7', scraper: null, city: 'Red Bank', region: 'NJ' },
 
   // ===== CT =====
-  { name: 'College Street Music Hall', website: 'https://www.collegestreetmusichall.com', ticketmasterId: 'KovZpZAEd7tA', scraper: null, city: 'New Haven', region: 'CT' },
-  { name: 'Mohegan Sun Arena', website: 'https://mohegansun.com/entertainment', ticketmasterId: 'KovZpZAFt7lA', scraper: null, city: 'Uncasville', region: 'CT' },
-  { name: 'Toyota Oakdale Theatre', website: 'https://www.oakdaletheater.com', ticketmasterId: 'KovZpZAdaJ7A', scraper: null, city: 'Wallingford', region: 'CT' },
+  { name: 'College Street Music Hall', website: 'https://www.collegestreetmusichall.com', ticketmasterId: 'KovZpZA7AlJA', scraper: null, city: 'New Haven', region: 'CT' },
+  { name: 'Mohegan Sun Arena', website: 'https://mohegansun.com/entertainment', ticketmasterId: 'KovZpZA6taIA', scraper: null, city: 'Uncasville', region: 'CT' },
+  { name: 'Toyota Oakdale Theatre', website: 'https://www.oakdaletheater.com', ticketmasterId: 'KovZpZAEkFtA', scraper: null, city: 'Wallingford', region: 'CT' },
   { name: 'Premier Theater at Foxwoods', website: 'https://www.foxwoods.com/entertainment', ticketmasterId: 'KovZpZAE6e6A', scraper: null, city: 'Mashantucket', region: 'CT' },
 
   // ===== CT: Indie / direct booking =====
@@ -105,9 +105,9 @@ export const VENUES: Venue[] = [
   { name: 'Roadrunner', website: 'https://roadrunnerboston.com', ticketmasterId: null, scraper: null, city: 'Boston', region: 'MA' },
 
   // ===== PA =====
-  { name: 'The Met Philadelphia', website: 'https://themetphilly.com', ticketmasterId: 'KovZpZAJk7tA', scraper: null, city: 'Philadelphia', region: 'PA' },
-  { name: 'Wells Fargo Center', website: 'https://www.wellsfargocenterphilly.com', ticketmasterId: 'KovZpZA7AAvA', scraper: null, city: 'Philadelphia', region: 'PA' },
+  { name: 'The Met Philadelphia', website: 'https://themetphilly.com', ticketmasterId: 'KovZ917Ahxb', scraper: null, city: 'Philadelphia', region: 'PA' },
   { name: 'The Fillmore Philadelphia', website: 'https://www.thefillmorephilly.com', ticketmasterId: 'KovZpZAEkteA', scraper: null, city: 'Philadelphia', region: 'PA' },
+  { name: 'Wells Fargo Center', website: 'https://www.wellsfargocenterphilly.com', ticketmasterId: null, scraper: null, city: 'Philadelphia', region: 'PA' },
   { name: 'Franklin Music Hall', website: 'https://www.franklinmusichall.com', ticketmasterId: null, scraper: null, city: 'Philadelphia', region: 'PA' },
   { name: 'The Mann Center', website: 'https://www.manncenter.org', ticketmasterId: null, scraper: null, city: 'Philadelphia', region: 'PA' },
   { name: 'Xfinity Live!', website: 'https://www.xfinitylive.com', ticketmasterId: null, scraper: null, city: 'Philadelphia', region: 'PA' },
