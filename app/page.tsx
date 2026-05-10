@@ -6,10 +6,8 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const REGION_LABELS: Record<string, string> = {
-  NYC: 'New York City',
+  NY: 'New York',
   NJ: 'New Jersey',
-  LongIsland: 'Long Island',
-  HudsonValley: 'Hudson Valley',
   CT: 'Connecticut',
   MA: 'Massachusetts',
   PA: 'Pennsylvania',

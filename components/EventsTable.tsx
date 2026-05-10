@@ -4,13 +4,11 @@ import { useMemo, useState } from 'react';
 import type { Event } from '../lib/types';
 
 const REGION_LABELS: Record<string, string> = {
-  NYC: 'NYC',
-  NJ: 'NJ',
-  LongIsland: 'Long Island',
-  HudsonValley: 'Hudson Valley',
-  CT: 'CT',
-  MA: 'MA',
-  PA: 'PA',
+  NY: 'New York',
+  NJ: 'New Jersey',
+  CT: 'Connecticut',
+  MA: 'Massachusetts',
+  PA: 'Pennsylvania',
 };
 
 function formatDateParts(iso: string): { day: string; num: string } {
