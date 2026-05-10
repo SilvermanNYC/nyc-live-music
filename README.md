@@ -97,3 +97,4 @@ Drop a new file in `lib/scrapers/` exporting a function `fetchEvents(): Promise<
 - **Coverage gaps:** Ticketmaster is comprehensive for Live Nation/AEG venues but won't have indie clubs, most jazz venues, or some standalone halls. Scrapers fill gaps but are fragile — when a venue redesigns its site, the scraper breaks. Plan to maintain.
 - **The 6-month window** will look sparse beyond ~3-4 months because most venues haven't announced shows that far out. This is expected.
 - **Artist URL resolution** is a best-effort lookup. Spotify's `external_urls` rarely include the artist's homepage, so we fall back to a Google search for `"artist name" official site`. Cached results live in `data/artist-cache.json`. If an artist has no clear official site, we link to their Ticketmaster artist page.
+
